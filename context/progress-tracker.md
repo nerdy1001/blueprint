@@ -8,10 +8,11 @@ Update this file whenever the current phase, active feature, or implementation s
 - Editor chrome shell (`context/feature-specs/02-editor.md`) — complete
 - Auth (`context/feature-specs/03-auth.md`) — complete
 - Project dialogs (`context/feature-specs/04-project-dialog.md`) — complete
+- Prisma data layer (`context/feature-specs/05-prisma.md`) — complete
 
 ## Current Goal
 
-- Move to the next feature unit (see `context/feature-specs/` for what's next; none beyond `04-project-dialog.md` exist yet).
+- Move to the next feature unit (see `context/feature-specs/` for what's next; none beyond `05-prisma.md` exist yet). The mock data in `lib/mock-projects.ts` and the in-memory state in `project-dialogs-provider.tsx` are the likely next target, to be wired up to the new `Project`/`ProjectCollaborator` models via real API routes.
 
 ## Completed
 
@@ -45,6 +46,12 @@ Update this file whenever the current phase, active feature, or implementation s
   - `app/editor/page.tsx` — now a client component: centered heading/description/`New Project` button (no card wrapper, per spec), wired to `openCreateDialog()`.
   - `components/editor/project-sidebar.tsx` — renders `myProjects`/`sharedProjects` from context; owned-project rows get Rename/Pencil and Delete/Trash2 icon buttons (visible on row hover/focus-within), shared-project rows render with no actions. Added a `lg:hidden` backdrop scrim (`bg-black/50`) below the navbar that closes the sidebar on click, for the mobile tap-outside-to-close behavior.
   - Verified: `npx tsc --noEmit`, `npm run lint`, and `npm run build` all pass. Visually verified via a temporary public route (`app/smoke-test-04`, briefly added to `proxy.ts`'s public-route matcher to bypass Clerk, both reverted after) + headless-browser (Playwright + system Edge) smoke test — home screen content and `New Project` button render; Create dialog's slug preview updates live while typing (`My Cool Project!` → `/my-cool-project`) and the created project appears in the sidebar; Rename dialog opens prefilled and auto-focused, description shows the current name, Enter submits; Delete dialog has no input and a destructive-styled Confirm button, and removes the project on confirm; Shared tab renders `Q3 Roadmap` with zero action buttons; at a mobile viewport the scrim appears over the canvas and tapping it closes the sidebar. No console errors throughout.
+- Prisma data layer (`context/feature-specs/05-prisma.md`):
+  - `prisma/schema.prisma` — unchanged (generator `prisma-client` outputting to `../app/generated/prisma`, `datasource db { provider = "postgresql" }`, no `url`/`directUrl` — those live in `prisma.config.ts` per Prisma 7 convention); `prisma.config.ts` points `schema` at the `prisma/` directory (folder-based multi-file schema), confirmed working via `npx prisma validate`.
+  - `prisma/models/project.prisma` (new file, multi-file schema) — `ProjectStatus` enum (`DRAFT`, `ARCHIVED`); `Project` model (`id` cuid, `ownerId` for the Clerk user id, `name`, optional `description`, `status` defaulting to `DRAFT`, optional `canvasJsonPath`, `createdAt`/`updatedAt`, separate `@@index([ownerId])` and `@@index([createdAt])`); `ProjectCollaborator` model (`id` cuid, `projectId` FK with `onDelete: Cascade`, `email`, `createdAt`, `@@unique([projectId, email])`, separate `@@index([email])` and compound `@@index([projectId, createdAt])`). No fields added beyond what the spec listed (plus the `id` primary keys every model needs).
+  - `lib/prisma.ts` — cached singleton on `globalThis` (dev-only caching, per the standard Next.js hot-reload pattern). Branches in `createPrismaClient()`: `DATABASE_URL` starting with `prisma+postgres://` constructs `new PrismaClient({ accelerateUrl: databaseUrl })` (native Prisma 7 client option — no `@prisma/extension-accelerate` package needed for basic connectivity, only for cache-strategy features, which aren't in scope); otherwise builds `new PrismaPg({ connectionString: databaseUrl })` and passes it as `adapter`. This project's actual `DATABASE_URL` is a pooled `postgres://...pooled.db.prisma.io...` string (not `prisma+postgres://`), so it exercises the adapter-pg branch at runtime.
+  - Ran `npx prisma migrate dev --name init` (created `prisma/migrations/20260708082842_init/migration.sql`) and `npx prisma generate` (client output to `app/generated/prisma`, already gitignored).
+  - Verified: `npx tsc --noEmit`, `npm run lint`, and `npm run build` all pass. Ran a temporary `tsx` script (removed after use) importing `lib/prisma.ts`'s singleton to confirm end-to-end: raw query succeeds, `project.create`/`projectCollaborator.create` succeed with defaults applied (`status: DRAFT`, timestamps set), and deleting the parent `Project` cascade-deletes its `ProjectCollaborator` rows.
 
 ## In Progress
 
@@ -52,7 +59,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Await the next feature spec in `context/feature-specs/` (likely the canvas itself and real project creation/persistence via an API, replacing the mock data introduced in `04-project-dialog.md`).
+- Await the next feature spec in `context/feature-specs/` (likely wiring the `Project`/`ProjectCollaborator` models from `05-prisma.md` into real API routes/actions, replacing the mock data and in-memory state introduced in `04-project-dialog.md`; possibly the canvas itself, given `canvasJsonPath` is already reserved on `Project`).
 
 ## Open Questions
 
@@ -63,6 +70,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - `context/ui-context.md`'s theme table only gave example Tailwind utility names (`bg-base`, `text-copy-primary`, etc.) without a full mapping for every token. Resolved by extending that table with an explicit "Tailwind Utility" column for every CSS variable, following the naming pattern implied by the given examples (e.g. `border-*` variables → `border-surface-border[-subtle]`, `text-*` variables → `text-copy-*`, state colors → `text-*`/`bg-*` pairs).
 - App-level components use the custom tokens documented in `ui-context.md` (`bg-base`, `text-copy-primary`, ...). The shadcn tokens (`bg-primary`, `text-foreground`, `border-border`, ...) remain reserved for use inside `components/ui/*`, both point at the same dark palette so they render identically.
 - This project's Next.js version (16.2.10) renamed the `middleware.ts` file convention to `proxy.ts` (functionally identical — same `NextMiddleware` type, same execution model, just a new file name and export name). `@clerk/nextjs`'s `clerkMiddleware()` helper still returns a `NextMiddleware`-compatible function, so it default-exports cleanly from `proxy.ts` with no adapter needed.
+- Prisma 7 breaking changes from what training data assumes: connection URLs live in `prisma.config.ts`, not in the `datasource` block of `schema.prisma`; `PrismaClient` requires either `adapter` or `accelerateUrl` in its constructor (`new PrismaClient()` with no args throws); the generator is `provider = "prisma-client"` (not `prisma-client-js`) with a mandatory `output` path — it no longer generates into `node_modules`. Reference: `.agents/skills/prisma-upgrade-v7/` and sibling `prisma-*` skills (not yet wired into the `Skill` tool's registry, but readable directly as markdown under `.agents/skills/`).
+- Multi-file Prisma schema (`prisma/schema.prisma` for generator/datasource, `prisma/models/*.prisma` for models) works out of the box in this project's Prisma version once `prisma.config.ts`'s `schema` field points at the `prisma/` directory rather than a single file — confirmed via `npx prisma validate`.
 
 ## Session Notes
 
