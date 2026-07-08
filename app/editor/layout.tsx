@@ -1,9 +1,14 @@
 import { EditorShell } from "@/components/editor/editor-shell"
+import { ProjectDialogsProvider } from "@/components/editor/project-dialogs-provider"
 
 export default function EditorLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <EditorShell>{children}</EditorShell>
+  return (
+    <ProjectDialogsProvider>
+      <EditorShell>{children}</EditorShell>
+    </ProjectDialogsProvider>
+  )
 }
