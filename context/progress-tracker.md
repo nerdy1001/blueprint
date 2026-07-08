@@ -7,10 +7,11 @@ Update this file whenever the current phase, active feature, or implementation s
 - Design system foundation (`context/feature-specs/01-design-system.md`) — complete
 - Editor chrome shell (`context/feature-specs/02-editor.md`) — complete
 - Auth (`context/feature-specs/03-auth.md`) — complete
+- Project dialogs (`context/feature-specs/04-project-dialog.md`) — complete
 
 ## Current Goal
 
-- Move to the next feature unit (see `context/feature-specs/` for what's next; none beyond `03-auth.md` exist yet).
+- Move to the next feature unit (see `context/feature-specs/` for what's next; none beyond `04-project-dialog.md` exist yet).
 
 ## Completed
 
@@ -37,6 +38,13 @@ Update this file whenever the current phase, active feature, or implementation s
   - `components/editor/editor-navbar.tsx` — added Clerk's `<UserButton />` to the navbar's right section (previously an empty placeholder).
   - Fixed a pre-existing bug in `app/globals.css`: `--font-sans` was self-referential (`--font-sans: var(--font-sans)`), so it never resolved to the loaded Geist Sans font and every page silently fell back to the browser's serif default. Now maps `--font-sans` → `var(--font-geist-sans)` and added the missing `--font-mono` → `var(--font-geist-mono)`, per `ui-context.md`'s typography table.
   - Verified: `npx tsc --noEmit`, `npm run lint`, and `npm run build` all pass (`proxy.ts` shows up as "ƒ Proxy (Middleware)" in the build output). Visually verified via a dev server + headless-browser (Playwright + system Edge) smoke test — unauthenticated visits to `/` and `/editor` redirect to `/sign-in?redirect_url=...`; `/sign-in` and `/sign-up` render the 50/50 dark layout with the cyan brand accent and Geist Sans applied correctly, no console errors.
+- Project dialogs (`context/feature-specs/04-project-dialog.md`):
+  - `lib/mock-projects.ts` — `Project` type, `slugify()` helper, and mock `INITIAL_MY_PROJECTS`/`SHARED_PROJECTS` arrays (no API/persistence, per spec).
+  - `hooks/use-project-dialogs.ts` — the dedicated hook the spec calls for: tracks which dialog is open (`create` | `rename` | `delete`, with the target project for rename/delete), the name-input/derived-slug form state, and a loading flag; takes `onCreate`/`onRename`/`onDelete` callbacks and awaits a fake `setTimeout` delay before invoking them, to simulate async submission.
+  - `components/editor/project-dialogs-provider.tsx` — `ProjectDialogsProvider` + `useProjectDialogsContext()`; owns the `myProjects` list as local component state (seeded from the mock data, mutated in place by the hook's callbacks — this is the "mock data only" persistence boundary, not a backend), and renders the three `EditorDialog`-based dialogs (Create with live slug preview, Rename prefilled + autofocused + Enter-to-submit, Delete destructive-confirm-only). Mounted in `app/editor/layout.tsx`, wrapping `EditorShell`, so both the sidebar and the editor home page can reach the same dialog/list state via context.
+  - `app/editor/page.tsx` — now a client component: centered heading/description/`New Project` button (no card wrapper, per spec), wired to `openCreateDialog()`.
+  - `components/editor/project-sidebar.tsx` — renders `myProjects`/`sharedProjects` from context; owned-project rows get Rename/Pencil and Delete/Trash2 icon buttons (visible on row hover/focus-within), shared-project rows render with no actions. Added a `lg:hidden` backdrop scrim (`bg-black/50`) below the navbar that closes the sidebar on click, for the mobile tap-outside-to-close behavior.
+  - Verified: `npx tsc --noEmit`, `npm run lint`, and `npm run build` all pass. Visually verified via a temporary public route (`app/smoke-test-04`, briefly added to `proxy.ts`'s public-route matcher to bypass Clerk, both reverted after) + headless-browser (Playwright + system Edge) smoke test — home screen content and `New Project` button render; Create dialog's slug preview updates live while typing (`My Cool Project!` → `/my-cool-project`) and the created project appears in the sidebar; Rename dialog opens prefilled and auto-focused, description shows the current name, Enter submits; Delete dialog has no input and a destructive-styled Confirm button, and removes the project on confirm; Shared tab renders `Q3 Roadmap` with zero action buttons; at a mobile viewport the scrim appears over the canvas and tapping it closes the sidebar. No console errors throughout.
 
 ## In Progress
 
@@ -44,7 +52,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Await the next feature spec in `context/feature-specs/` (likely the canvas itself, project creation/persistence, and the first concrete dialog built on the `EditorDialog` pattern).
+- Await the next feature spec in `context/feature-specs/` (likely the canvas itself and real project creation/persistence via an API, replacing the mock data introduced in `04-project-dialog.md`).
 
 ## Open Questions
 
@@ -62,3 +70,5 @@ Update this file whenever the current phase, active feature, or implementation s
 - Do not modify `components/ui/*` — per `context/ai-workflow-rules.md`, project-specific styling belongs in app-level components instead.
 - Next.js app router treats any `app/` folder prefixed with `_` as a private, non-routable segment — a temporary smoke-test route must use a plain folder name (e.g. `app/smoke-test/`) or it 404s.
 - Gotcha: since `--color-base` is defined as a theme token in `globals.css`, Tailwind v4 auto-generates `bg-base` *and* `text-base` as color utilities — meaning `text-base` here is a text **color** (page background color), not Tailwind's default font-size utility. Don't use `text-base` for sizing; it silently collides with any text-color utility on the same element.
+- Now that Clerk auth guards every route via `proxy.ts`, smoke-testing anything under `/editor` needs a temporary bypass: add a throwaway route (e.g. `app/smoke-test-04/`) and temporarily add its matcher (e.g. `"/smoke-test-04(.*)"`) to the `isPublicRoute` list in `proxy.ts`, then revert both after testing. Confirm the revert with `git status`/`git diff proxy.ts` before finishing.
+- Gotcha: `npx playwright` doesn't add a `playwright` package to this project's `node_modules` — it runs from npm's own npx cache (`~/AppData/Local/npm-cache/_npx/<hash>/node_modules/playwright`). A standalone `node script.mjs` that does `import { chromium } from "playwright"` only resolves if the script is colocated in that same cache directory (find it via the cache path, `cp` the script there, then run `node script.mjs` from that directory).
