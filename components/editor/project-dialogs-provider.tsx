@@ -5,12 +5,8 @@ import * as React from "react"
 import { EditorDialog } from "@/components/editor/editor-dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useProjectDialogs } from "@/hooks/use-project-dialogs"
-import {
-  INITIAL_MY_PROJECTS,
-  SHARED_PROJECTS,
-  type Project,
-} from "@/lib/mock-projects"
+import { useProjectActions } from "@/hooks/use-project-actions"
+import type { Project } from "@/app/generated/prisma/client"
 
 interface ProjectDialogsContextValue {
   myProjects: Project[]
@@ -33,19 +29,22 @@ export function useProjectDialogsContext() {
   return context
 }
 
-export function ProjectDialogsProvider({
-  children,
-}: {
+interface ProjectDialogsProviderProps {
+  myProjects: Project[]
+  sharedProjects: Project[]
   children: React.ReactNode
-}) {
-  const [myProjects, setMyProjects] =
-    React.useState<Project[]>(INITIAL_MY_PROJECTS)
+}
 
+export function ProjectDialogsProvider({
+  myProjects,
+  sharedProjects,
+  children,
+}: ProjectDialogsProviderProps) {
   const {
     dialog,
     name,
     setName,
-    slug,
+    roomId,
     isLoading,
     openCreateDialog,
     openRenameDialog,
@@ -54,28 +53,13 @@ export function ProjectDialogsProvider({
     submitCreate,
     submitRename,
     submitDelete,
-  } = useProjectDialogs({
-    onCreate: ({ name, slug }) => {
-      setMyProjects((projects) => [
-        ...projects,
-        { id: crypto.randomUUID(), name, slug },
-      ])
-    },
-    onRename: (project, next) => {
-      setMyProjects((projects) =>
-        projects.map((p) => (p.id === project.id ? { ...p, ...next } : p))
-      )
-    },
-    onDelete: (project) => {
-      setMyProjects((projects) => projects.filter((p) => p.id !== project.id))
-    },
-  })
+  } = useProjectActions()
 
   return (
     <ProjectDialogsContext.Provider
       value={{
         myProjects,
-        sharedProjects: SHARED_PROJECTS,
+        sharedProjects,
         openCreateDialog,
         openRenameDialog,
         openDeleteDialog,
@@ -115,7 +99,7 @@ export function ProjectDialogsProvider({
             placeholder="Project name"
           />
           <p className="font-mono text-sm text-copy-muted">
-            /{slug || "your-project-slug"}
+            /{roomId || "your-project-room-id"}
           </p>
         </div>
       </EditorDialog>
