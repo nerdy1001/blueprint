@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
-import type { Project } from "@/lib/mock-projects"
+import type { Project } from "@/app/generated/prisma/client"
 
 interface ProjectSidebarProps {
   isOpen: boolean
