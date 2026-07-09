@@ -30,8 +30,8 @@ export function EditorDialog({
 }: EditorDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-3xl border border-surface-border bg-elevated text-copy-primary ring-0 sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="gap-6 rounded-3xl border border-surface-border bg-elevated p-6 text-copy-primary ring-0 sm:max-w-md">
+        <DialogHeader className="gap-1.5">
           <DialogTitle className="text-copy-primary">{title}</DialogTitle>
           {description && (
             <DialogDescription className="text-copy-muted">
@@ -41,7 +41,7 @@ export function EditorDialog({
         </DialogHeader>
         {children}
         {footer && (
-          <DialogFooter className="border-surface-border bg-transparent">
+          <DialogFooter className="-mx-6 -mb-6 border-surface-border bg-transparent p-6 pt-0">
             {footer}
           </DialogFooter>
         )}

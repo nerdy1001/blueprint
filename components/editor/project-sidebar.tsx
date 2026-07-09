@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Pencil, Plus, Trash2, X } from "lucide-react"
 
 import { useProjectDialogsContext } from "@/components/editor/project-dialogs-provider"
@@ -12,6 +13,7 @@ import type { Project } from "@/app/generated/prisma/client"
 interface ProjectSidebarProps {
   isOpen: boolean
   onClose: () => void
+  activeProjectId?: string
 }
 
 function EmptyState({ message }: { message: string }) {
@@ -25,10 +27,14 @@ function EmptyState({ message }: { message: string }) {
 function ProjectList({
   projects,
   emptyMessage,
+  activeProjectId,
+  onSelect,
   renderActions,
 }: {
   projects: Project[]
   emptyMessage: string
+  activeProjectId?: string
+  onSelect: (project: Project) => void
   renderActions?: (project: Project) => React.ReactNode
 }) {
   if (projects.length === 0) {
@@ -40,7 +46,19 @@ function ProjectList({
       {projects.map((project) => (
         <div
           key={project.id}
-          className="group flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-copy-primary hover:bg-subtle"
+          role="button"
+          tabIndex={0}
+          onClick={() => onSelect(project)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault()
+              onSelect(project)
+            }
+          }}
+          className={cn(
+            "group flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-copy-primary hover:bg-subtle",
+            project.id === activeProjectId && "bg-accent-dim text-brand"
+          )}
         >
           <span className="truncate">{project.name}</span>
           {renderActions && (
@@ -54,7 +72,12 @@ function ProjectList({
   )
 }
 
-export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
+export function ProjectSidebar({
+  isOpen,
+  onClose,
+  activeProjectId,
+}: ProjectSidebarProps) {
+  const router = useRouter()
   const {
     myProjects,
     sharedProjects,
@@ -62,6 +85,10 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
     openRenameDialog,
     openDeleteDialog,
   } = useProjectDialogsContext()
+
+  function handleSelect(project: Project) {
+    router.push(`/editor/${project.id}`)
+  }
 
   return (
     <>
@@ -113,13 +140,18 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
               <ProjectList
                 projects={myProjects}
                 emptyMessage="No projects yet."
+                activeProjectId={activeProjectId}
+                onSelect={handleSelect}
                 renderActions={(project) => (
                   <>
                     <Button
                       variant="ghost"
                       size="icon-xs"
                       aria-label={`Rename ${project.name}`}
-                      onClick={() => openRenameDialog(project)}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        openRenameDialog(project)
+                      }}
                     >
                       <Pencil />
                     </Button>
@@ -127,7 +159,10 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
                       variant="ghost"
                       size="icon-xs"
                       aria-label={`Delete ${project.name}`}
-                      onClick={() => openDeleteDialog(project)}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        openDeleteDialog(project)
+                      }}
                     >
                       <Trash2 />
                     </Button>
@@ -141,6 +176,8 @@ export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
               <ProjectList
                 projects={sharedProjects}
                 emptyMessage="No shared projects yet."
+                activeProjectId={activeProjectId}
+                onSelect={handleSelect}
               />
             </ScrollArea>
           </TabsContent>

@@ -1,0 +1,50 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f \"c:/Users/lenovo/Desktop/blueprint-app/scratch-cleanup-08.ts\")",
+      "Bash(node -e \"console.log\\(JSON.parse\\(require\\('fs'\\).readFileSync\\('C:/Users/lenovo/AppData/Local/Temp/claude/c--Users-lenovo-Desktop-blueprint-app/75b30734-4e49-457f-8ebc-411dd1bee7eb/scratchpad/user_owner.json'\\)\\).id\\)\")",
+      "Bash(node -e \"console.log\\(JSON.parse\\(require\\('fs'\\).readFileSync\\('C:/Users/lenovo/AppData/Local/Temp/claude/c--Users-lenovo-Desktop-blueprint-app/75b30734-4e49-457f-8ebc-411dd1bee7eb/scratchpad/user_stranger.json'\\)\\).id\\)\")",
+      "Bash(curl -s -X DELETE https://api.clerk.com/v1/users/__TRACKED_VAR__ -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(rm -f .clerk-secret.tmp)",
+      "Bash(powershell -Command \"Get-Process -Id \\(Get-NetTCPConnection -LocalPort 3100 -ErrorAction SilentlyContinue\\).OwningProcess -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3100/ --max-time 3)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s -o /dev/null -w \"http_code=%{http_code}\\\\n\" http://localhost:3100/ --max-time 5)",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, StartTime, Path\")",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 3000,3100 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalPort, OwningProcess\")",
+      "Bash(powershell -Command \"Stop-Process -Id 34104,30528,40552,44788 -Force -ErrorAction SilentlyContinue\")",
+      "Bash(rm -f .next/dev/logs/next-development.log)",
+      "Bash(npm run *)",
+      "Bash(echo \"started pid $!\")",
+      "Bash(curl -s -D - -o /dev/null http://localhost:3100/ --max-time 5)",
+      "Bash(curl -s -X POST https://api.clerk.com/v1/users -H 'Authorization: Bearer __TRACKED_VAR__' -H 'Content-Type: application/json' -d '{\"email_address\":[\"fixtest+clerk_test@example.com\"],\"password\":\"Test-Password-1234!\",\"skip_password_checks\":true,\"skip_password_requirement\":true}')",
+      "Bash(node -e \"console.log\\(JSON.parse\\(require\\('fs'\\).readFileSync\\('C:/Users/lenovo/AppData/Local/Temp/claude/c--Users-lenovo-Desktop-blueprint-app/75b30734-4e49-457f-8ebc-411dd1bee7eb/scratchpad/user_fixtest.json'\\)\\).id\\)\")",
+      "Bash(node smoke-08-fixes.mjs)",
+      "Bash(rm -f \"C:/Users/lenovo/AppData/Local/npm-cache/_npx/361ceb562f3b3235/smoke-08-fixes.mjs\")",
+      "Bash(powershell -Command 'Get-NetTCPConnection -LocalPort 3100 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }')",
+      "Bash(curl -s -o /dev/null -w \"http_code=%{http_code}\\\\n\" http://localhost:3100/ --max-time 3)",
+      "Bash(node -e \"console.log\\(require\\('@clerk/nextjs/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\(require\\('@clerk/backend/package.json'\\).version\\)\")",
+      "Bash(xargs grep -ln \"getUserList\")",
+      "Bash(cat eslint.config.mjs)",
+      "Bash(cat .eslintrc.json)",
+      "Bash(cat next.config.ts)",
+      "Bash(cat next.config.js)",
+      "Bash(cat next.config.mjs)",
+      "Bash(cd \"c:\\\\Users\\\\lenovo\\\\Desktop\\\\blueprint-app\" && mkdir -p \"app/api/projects/[projectId]/collaborators/[collaboratorId]\")",
+      "Bash(node smoke_share.mjs)",
+      "Bash(node -e 'console.log\\(require\\('\\\\''C:\\\\Users\\\\lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-lenovo-Desktop-blueprint-app\\\\526a626c-b619-499e-bd1c-ab9555044e34\\\\scratchpad/owner.json'\\\\''\\).id\\)')",
+      "Bash(node -e 'console.log\\(require\\('\\\\''C:\\\\Users\\\\lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-lenovo-Desktop-blueprint-app\\\\526a626c-b619-499e-bd1c-ab9555044e34\\\\scratchpad/collab.json'\\\\''\\).id\\)')",
+      "Bash(grep -v \"SECURITY WARNING\\\\|next major version\\\\|To prepare\\\\|If you want\\\\|See https\\\\|trace-warnings\\\\|^$\")",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }; Start-Sleep -Seconds 1; \"done\")",
+      "Bash(rm -f \"/c/Users/lenovo/AppData/Local/npm-cache/_npx/361ceb562f3b3235/node_modules/smoke_share.mjs\" \"/c/Users/lenovo/AppData/Local/npm-cache/_npx/361ceb562f3b3235/node_modules/share-after-invite.png\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/ --max-time 5)",
+      "Bash(node smoke_share2.mjs)",
+      "Bash(node smoke_spacing.mjs)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\lenovo\\AppData\\Local\\npm-cache\\_npx\\361ceb562f3b3235",
+      "C:\\Users\\lenovo\\Desktop\\blueprint-app\\app\\api\\projects\\[projectId]\\collaborators"
+    ]
+  }
+}
