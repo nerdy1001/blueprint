@@ -25,7 +25,7 @@ function generateSuffix(): string {
 
 export function useProjectActions() {
   const router = useRouter()
-  const params = useParams<{ projectId?: string }>()
+  const params = useParams<{ roomId?: string }>()
 
   const [dialog, setDialog] = useState<DialogState>(null)
   const [name, setName] = useState("")
@@ -106,7 +106,7 @@ export function useProjectActions() {
       })
       if (!response.ok) return
       setDialog(null)
-      if (params?.projectId === target.id) {
+      if (params?.roomId === target.id) {
         router.push("/editor")
       }
       router.refresh()
