@@ -5,9 +5,14 @@ import { useParams } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { Sparkles } from "lucide-react"
 
+import {
+  CanvasTemplateActionsProvider,
+  useCanvasTemplateImport,
+} from "@/components/editor/canvas-template-actions"
 import { EditorNavbar } from "@/components/editor/editor-navbar"
 import { ProjectSidebar } from "@/components/editor/project-sidebar"
 import { ShareDialog } from "@/components/editor/share-dialog"
+import { StarterTemplatesModal } from "@/components/editor/starter-templates-modal"
 import { useProjectDialogsContext } from "@/components/editor/project-dialogs-provider"
 import { useShareDialog } from "@/hooks/use-share-dialog"
 import { cn } from "@/lib/utils"
@@ -17,13 +22,23 @@ interface EditorShellProps {
 }
 
 export function EditorShell({ children }: EditorShellProps) {
+  return (
+    <CanvasTemplateActionsProvider>
+      <EditorShellContent>{children}</EditorShellContent>
+    </CanvasTemplateActionsProvider>
+  )
+}
+
+function EditorShellContent({ children }: EditorShellProps) {
   const [isSidebarOpen, setSidebarOpen] = useState(true)
   const [isAiSidebarOpen, setAiSidebarOpen] = useState(false)
   const [isShareDialogOpen, setShareDialogOpen] = useState(false)
+  const [isTemplatesModalOpen, setTemplatesModalOpen] = useState(false)
   const params = useParams<{ roomId?: string }>()
   const { user } = useUser()
   const { myProjects, sharedProjects } = useProjectDialogsContext()
   const shareDialog = useShareDialog({ projectId: params?.roomId ?? "" })
+  const importTemplate = useCanvasTemplateImport()
 
   const roomId = params?.roomId
   const activeProject = roomId
@@ -51,6 +66,9 @@ export function EditorShell({ children }: EditorShellProps) {
               }
             : undefined
         }
+        onOpenTemplatesModal={
+          roomId ? () => setTemplatesModalOpen(true) : undefined
+        }
       />
       {roomId && activeProject && (
         <ShareDialog
@@ -58,6 +76,13 @@ export function EditorShell({ children }: EditorShellProps) {
           onOpenChange={setShareDialogOpen}
           isOwner={isOwner}
           {...shareDialog}
+        />
+      )}
+      {roomId && (
+        <StarterTemplatesModal
+          open={isTemplatesModalOpen}
+          onOpenChange={setTemplatesModalOpen}
+          onImport={importTemplate}
         />
       )}
       <div className="relative flex min-h-0 flex-1">
