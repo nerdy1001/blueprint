@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { cn } from "@/lib/utils"
 
 interface EditorDialogProps {
   open: boolean
@@ -18,6 +19,7 @@ interface EditorDialogProps {
   description?: string
   footer?: React.ReactNode
   children?: React.ReactNode
+  contentClassName?: string
 }
 
 export function EditorDialog({
@@ -27,10 +29,16 @@ export function EditorDialog({
   description,
   footer,
   children,
+  contentClassName,
 }: EditorDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-6 rounded-3xl border border-surface-border bg-elevated p-6 text-copy-primary ring-0 sm:max-w-md">
+      <DialogContent
+        className={cn(
+          "gap-6 rounded-3xl border border-surface-border bg-elevated p-6 text-copy-primary ring-0 sm:max-w-md",
+          contentClassName
+        )}
+      >
         <DialogHeader className="gap-1.5">
           <DialogTitle className="text-copy-primary">{title}</DialogTitle>
           {description && (

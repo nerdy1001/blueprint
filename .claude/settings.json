@@ -73,7 +73,12 @@
       "Bash(curl -s -X DELETE https://api.clerk.com/v1/users/user_3GH5DzPiLVMHDIzOvjJWlhc3Sbz -H 'Authorization: Bearer sk_test_yQQRhiwV6YUnCwAFNetDyzSAGOlsCrhA7cNFrgRakk')",
       "Bash(rm -f \"C:\\\\Users\\\\lenovo\\\\Desktop\\\\blueprint-app\\\\scratch-cleanup-shape-panel-test.ts\")",
       "Bash(rm -f \"C:\\\\Users\\\\lenovo\\\\AppData\\\\Local\\\\npm-cache\\\\_npx\\\\361ceb562f3b3235\\\\node_modules\\\\shape-panel-test.mjs\")",
-      "Bash(curl -s -o /dev/null -w \"dev server still up: %{http_code}\\\\n\" http://localhost:3000/ --max-time 5)"
+      "Bash(curl -s -o /dev/null -w \"dev server still up: %{http_code}\\\\n\" http://localhost:3000/ --max-time 5)",
+      "Bash(node -e \"console.log\\('ok'\\)\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/sign-in)",
+      "Bash(node smoke13.mjs)",
+      "Bash(node debug13.mjs)",
+      "Bash(powershell -NoProfile -Command \"Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\lenovo\\AppData\\Local\\npm-cache\\_npx\\361ceb562f3b3235",

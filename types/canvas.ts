@@ -15,7 +15,12 @@ export interface CanvasNodeData extends Record<string, unknown> {
 }
 
 export type CanvasNode = Node<CanvasNodeData, "canvasNode">
-export type CanvasEdge = Edge<Record<string, never>, "canvasEdge">
+
+export interface CanvasEdgeData extends Record<string, unknown> {
+  label?: string
+}
+
+export type CanvasEdge = Edge<CanvasEdgeData, "canvasEdge">
 
 export interface NodeColorPair {
   fill: string
@@ -64,6 +69,17 @@ export const NODE_SHAPES: NodeShapeDefinition[] = [
   { shape: "cylinder", label: "Cylinder", defaultSize: { width: 120, height: 100 } },
   { shape: "hexagon", label: "Hexagon", defaultSize: { width: 160, height: 100 } },
 ]
+
+export function getDefaultNodeSize(shape: CanvasNodeShape): NodeSize {
+  return (
+    NODE_SHAPES.find((entry) => entry.shape === shape)?.defaultSize ??
+    NODE_SHAPES[0].defaultSize
+  )
+}
+
+// Floor for interactive resizing - keeps a node large enough to stay
+// legible and grabbable regardless of shape.
+export const MIN_NODE_SIZE: NodeSize = { width: 60, height: 40 }
 
 export const SHAPE_DRAG_MIME_TYPE = "application/x-blueprint-shape"
 
